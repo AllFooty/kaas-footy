@@ -1,0 +1,205 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Base HSL Color Palettes */
+    --primary-hue: 198;
+    --secondary-hue: 152;
+    --accent-hue: 326;
+    --destructive-hue: 0;
+    --muted-hue: 190;
+    --bg-hue: 190;
+
+    /* Light Mode Theme */
+    --background: var(--bg-hue) 30% 98%;
+    --foreground: 198 85% 12%;
+    
+    /* Card Colors */
+    --card: 0 0% 100%;
+    --card-foreground: var(--primary-hue) 85% 12%;
+    
+    /* Popover Colors */
+    --popover: 0 0% 100%;
+    --popover-foreground: var(--primary-hue) 85% 12%;
+    
+    /* Primary Colors */
+    --primary: var(--primary-hue) 85% 45%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary Colors */
+    --secondary: var(--secondary-hue) 55% 90%;
+    --secondary-foreground: var(--secondary-hue) 85% 15%;
+    
+    /* Muted Colors */
+    --muted: var(--muted-hue) 35% 88%;
+    --muted-foreground: var(--muted-hue) 60% 25%;
+    
+    /* Accent Colors */
+    --accent: var(--accent-hue) 65% 88%;
+    --accent-foreground: var(--accent-hue) 85% 20%;
+    
+    /* Destructive Colors */
+    --destructive: var(--destructive-hue) 75% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Border & Input Colors */
+    --border: var(--bg-hue) 35% 85%;
+    --input: var(--bg-hue) 35% 85%;
+    --ring: var(--primary);
+    
+    --radius: 0.75rem;
+  }
+ 
+  .dark {
+    /* Dark Mode Theme */
+    --bg-hue: 222;
+    --background: var(--bg-hue) 47% 6%;
+    --foreground: var(--secondary-hue) 40% 98%;
+    
+    /* Card Colors */
+    --card: var(--bg-hue) 35% 12%;
+    --card-foreground: 210 40% 98%;
+    
+    /* Popover Colors */
+    --popover: var(--bg-hue) 35% 12%;
+    --popover-foreground: 210 40% 98%;
+    
+    /* Primary Colors */
+    --primary: var(--primary-hue) 91% 60%;
+    --primary-foreground: 210 40% 98%;
+    
+    /* Secondary Colors */
+    --secondary: var(--secondary-hue) 55% 20%;
+    --secondary-foreground: 210 40% 98%;
+    
+    /* Muted Colors */
+    --muted: var(--bg-hue) 35% 12%;
+    --muted-foreground: 215 20% 65%;
+    
+    /* Accent Colors */
+    --accent: var(--accent-hue) 50% 20%;
+    --accent-foreground: 210 40% 98%;
+    
+    /* Destructive Colors */
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    
+    /* Border & Input Colors */
+    --border: var(--bg-hue) 35% 18%;
+    --input: var(--bg-hue) 35% 18%;
+    --ring: var(--primary);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    font-size: 16px;
+    @apply scroll-smooth antialiased;
+  }
+  
+  body {
+    @apply bg-background text-foreground min-h-screen;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    background-image: 
+      radial-gradient(
+        circle at 50% 0%, 
+        hsl(var(--primary)/0.1) 0%, 
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 100% 100%, 
+        hsl(var(--secondary)/0.1) 0%, 
+        transparent 50%
+      ),
+      linear-gradient(
+        to bottom right,
+        hsl(var(--background)),
+        hsl(var(--muted))
+      );
+    background-attachment: fixed;
+  }
+
+  /* Enhanced Typography */
+  h1 {
+    @apply text-4xl font-bold md:text-5xl tracking-tight;
+    letter-spacing: -0.02em;
+    background: linear-gradient(to right, hsl(var(--foreground)), hsl(var(--muted-foreground)));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  h2 {
+    @apply text-3xl font-semibold md:text-4xl tracking-tight;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    @apply text-2xl font-semibold md:text-3xl;
+  }
+
+  p {
+    @apply text-base md:text-lg leading-relaxed;
+  }
+}
+
+@layer components {
+  /* Modern Container */
+  .container-modern {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-7xl;
+    /* ... rest of container-modern styles ... */
+  }
+
+  /* ... rest of the component styles ... */
+}
+
+@layer utilities {
+  /* Modern Scrollbar */
+  .scrollbar-modern {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+  
+  /* ... rest of the utility styles ... */
+}
+
+/* Form Enhancements */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px hsl(var(--background)) inset !important;
+  -webkit-text-fill-color: hsl(var(--foreground)) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Glass Effect Utilities */
+.glass {
+  @apply bg-background/50 backdrop-blur-md;
+  @apply border border-border/20;
+  @apply shadow-lg;
+}
+
+/* ... rest of the glass effects and print styles ... */
+
+/* NextPass Fixes */
+[data-np-intersection-state],
+[data-np-autofill-field-type],
+[data-np-uid] {
+  display: inherit !important;
+}
+
+/* Print styles */
+@media print {
+  @page {
+    margin: 1cm;
+  }
+  
+  /* ... rest of the print styles ... */
+}
