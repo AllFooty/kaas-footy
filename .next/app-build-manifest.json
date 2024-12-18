@@ -16,16 +16,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/tournaments/hub/page.js"
     ],
-    "/tournaments/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/tournaments/[id]/page.js"
-    ],
-    "/tournaments/demo/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/tournaments/demo/page.js"
-    ],
     "/tournaments/create/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",

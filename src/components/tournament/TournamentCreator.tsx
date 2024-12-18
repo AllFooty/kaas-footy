@@ -9,29 +9,107 @@ import { FormatSelectionStep } from "./steps/FormatSelectionStep"
 import { FormatSettingsStep } from "./steps/FormatSettingsStep"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
+import { VisionCollectionStep } from "./steps/VisionCollectionStep"
+import { ConstraintCollectionStep } from "./steps/ConstraintCollectionStep"
 
-type Step = 'basic-info' | 'format-selection' | 'format-settings'
+type Step = 'basic-info' | 'format-selection' | 'format-settings' | 'vision-collection' | 'constraint-collection'
+
+interface TournamentFormData {
+  basicInfo: {
+    name: string
+    description: string
+    coverImage?: string
+    ageGroup?: string
+    competitionLevel: 'RECREATIONAL' | 'COMPETITIVE' | 'PROFESSIONAL'
+  }
+  format: 'LEAGUE' | 'KNOCKOUT' | 'GROUP_KNOCKOUT' | null
+  settings: {
+    roundRobinType: 'SINGLE' | 'DOUBLE'
+    groupCount: number
+    teamsPerGroup: number
+    qualifiersPerGroup: number
+    hasThirdPlace: boolean
+    hasExtraTime: boolean
+    hasPenalties: boolean
+  }
+  vision: {
+    targetTeamCount: number
+    matchDuration: number
+    breakTime: number
+    totalDuration: number
+    priorities: {
+      venueEfficiency: boolean
+      matchBalance: boolean
+      restTime: boolean
+    }
+  }
+  constraints: {
+    duration: {
+      startDate: string
+      endDate: string
+    }
+    venues: Array<{
+      id: string
+      name: string
+      fields: Array<{
+        id: string
+        name: string
+      }>
+    }>
+    availability: Array<{
+      date: string
+      timeSlots: Array<{
+        start: string
+        end: string
+      }>
+      venueId: string
+      fieldId: string
+    }>
+  }
+}
 
 export function TournamentCreator() {
   const [currentStep, setCurrentStep] = useState<Step>('basic-info')
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<TournamentFormData>({
     basicInfo: {
       name: '',
-      description: ''
+      description: '',
+      coverImage: undefined,
+      ageGroup: undefined,
+      competitionLevel: 'RECREATIONAL'
     },
-    format: null as 'LEAGUE' | 'KNOCKOUT' | 'GROUP_KNOCKOUT' | null,
+    format: null,
     settings: {
-      roundRobinType: 'SINGLE' as 'SINGLE' | 'DOUBLE',
+      roundRobinType: 'SINGLE',
       groupCount: 2,
       teamsPerGroup: 4,
       qualifiersPerGroup: 2,
       hasThirdPlace: true,
       hasExtraTime: true,
       hasPenalties: true
+    },
+    vision: {
+      targetTeamCount: 16,
+      matchDuration: 90,
+      breakTime: 15,
+      totalDuration: 14, // days
+      priorities: {
+        venueEfficiency: true,
+        matchBalance: true,
+        restTime: true
+      }
+    },
+    constraints: {
+      duration: {
+        startDate: '',
+        endDate: ''
+      },
+      venues: [],
+      availability: []
     }
   })
 
-  const steps: Step[] = ['basic-info', 'format-selection', 'format-settings']
+  const steps: Step[] = ['basic-info', 'format-selection', 'format-settings', 'vision-collection', 'constraint-collection']
   const currentStepIndex = steps.indexOf(currentStep)
   const progress = ((currentStepIndex + 1) / steps.length) * 100
 
@@ -106,7 +184,10 @@ export function TournamentCreator() {
         {currentStep === 'basic-info' && (
           <BasicInfoStep 
             data={formData.basicInfo}
-            onUpdate={(data) => setFormData(prev => ({ ...prev, basicInfo: data }))}
+            onUpdate={(data) => setFormData((prev) => ({ 
+              ...prev, 
+              basicInfo: data 
+            }))}
           />
         )}
         {currentStep === 'format-selection' && (
@@ -120,6 +201,19 @@ export function TournamentCreator() {
             format={formData.format}
             settings={formData.settings}
             onUpdate={(settings) => setFormData(prev => ({ ...prev, settings }))}
+          />
+        )}
+        {currentStep === 'vision-collection' && (
+          <VisionCollectionStep 
+            data={formData.vision}
+            format={formData.format}
+            onUpdate={(vision) => setFormData(prev => ({ ...prev, vision }))}
+          />
+        )}
+        {currentStep === 'constraint-collection' && (
+          <ConstraintCollectionStep 
+            data={formData.constraints}
+            onUpdate={(constraints) => setFormData(prev => ({ ...prev, constraints }))}
           />
         )}
       </div>

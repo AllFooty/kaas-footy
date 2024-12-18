@@ -156,6 +156,27 @@
     /* ... rest of container-modern styles ... */
   }
 
+  /* Calendar Styles */
+  .rdp {
+    --rdp-cell-size: 40px;
+    --rdp-accent-color: #0066CC;
+    --rdp-background-color: #F5F5F7;
+    margin: 0;
+  }
+  
+  .dark .rdp {
+    --rdp-accent-color: #0A84FF;
+    --rdp-background-color: #2D2D2D;
+  }
+  
+  .rdp-months {
+    @apply bg-card rounded-lg p-4 shadow-sm border border-border/50;
+  }
+  
+  .dark .rdp-months {
+    @apply bg-card/50 backdrop-blur-[2px];
+  }
+
   /* ... rest of the component styles ... */
 }
 

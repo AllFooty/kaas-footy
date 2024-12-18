@@ -1,33 +1,94 @@
-export interface Tournament {
-  id: string
-  name: string
-  status: 'DRAFT' | 'ACTIVE' | 'IN_PROGRESS' | 'COMPLETED'
-  teams: Team[]
-  matches: Match[]
+export interface TimeSlot {
+  start: string
+  end: string
 }
 
-export interface Team {
+export interface Field {
   id: string
   name: string
-  color: string
-  stats: {
-    played: number
-    won: number
-    drawn: number
-    lost: number
-    goalsFor: number
-    goalsAgainst: number
-    goalDifference: number
-    points: number
+}
+
+export interface Venue {
+  id: string
+  name: string
+  fields: Field[]
+}
+
+export interface DailyAvailability {
+  date: string
+  timeSlots: TimeSlot[]
+  venueId: string
+  fieldId: string
+  isMatchDay: boolean
+}
+
+export interface TournamentConstraints {
+  duration: {
+    startDate: string
+    endDate: string
+    isSingleDay: boolean
+  }
+  venues: Venue[]
+  availability: DailyAvailability[]
+}
+
+export interface TournamentBasicInfo {
+  name: string
+  description: string
+  coverImage?: string
+  ageGroup?: string
+  competitionLevel: 'RECREATIONAL' | 'COMPETITIVE' | 'PROFESSIONAL'
+}
+
+export interface TournamentVision {
+  priorities: {
+    venueEfficiency: boolean
+    matchBalance: boolean
+    travelDistance?: boolean
+    restTime?: boolean
+  }
+  preferences: {
+    preferredMatchDays: string[]
+    preferredMatchTimes: TimeSlot[]
+    avoidBackToBack: boolean
   }
 }
 
-export interface Match {
+export interface TournamentFormatSettings {
+  league?: {
+    pointsForWin: number
+    pointsForDraw: number
+    pointsForLoss: number
+    useHeadToHead: boolean
+    useGoalDifference: boolean
+  }
+  knockout?: {
+    thirdPlace: boolean
+    awayGoals: boolean
+    replays: boolean
+  }
+  group?: {
+    numberOfGroups: number
+    teamsPerGroup: number
+    qualifiersPerGroup: number
+  }
+  matchDuration: {
+    regularTime: number
+    extraTime?: number
+    penalties: boolean
+  }
+}
+
+export type TournamentFormat = 'LEAGUE' | 'KNOCKOUT' | 'GROUP_KNOCKOUT'
+
+export interface Tournament {
   id: string
-  homeTeam: Team
-  awayTeam: Team
-  homeScore?: number
-  awayScore?: number
-  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED'
-  date: string
+  basicInfo: TournamentBasicInfo
+  format: TournamentFormat
+  settings: TournamentFormatSettings
+  vision: TournamentVision
+  constraints: TournamentConstraints
+  status: 'DRAFT' | 'ACTIVE' | 'IN_PROGRESS' | 'COMPLETED'
+  createdAt: string
+  updatedAt: string
 } 
