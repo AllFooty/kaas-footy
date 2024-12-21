@@ -163,7 +163,7 @@ export function InteractivePlanningStep({
             <CalendarIcon className="h-12 w-12 mx-auto text-[#0066CC]" />
             <h3 className="text-lg font-medium">No Schedule Generated Yet</h3>
             <p className="text-sm text-muted-foreground">
-              Click the "Generate Schedule" button above to create your tournament schedule. 
+              Click the &quot;Generate Schedule&quot; button above to create your tournament schedule. 
               This will distribute matches across your available dates and venues.
             </p>
             <Button

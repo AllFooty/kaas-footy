@@ -35,7 +35,7 @@ export function DailySchedule({ data, onUpdate }: DailyScheduleProps): JSX.Eleme
     if (data.duration.startDate && data.duration.endDate) {
       regenerateSchedule()
     }
-  }, [data.venues, data.duration.startDate, data.duration.endDate])
+  }, [data.venues, data.duration.startDate, data.duration.endDate, regenerateSchedule])
 
   const regenerateSchedule = (): void => {
     if (!data.duration.startDate || !data.duration.endDate) return
@@ -407,4 +407,4 @@ export function DailySchedule({ data, onUpdate }: DailyScheduleProps): JSX.Eleme
       </div>
     </div>
   )
-} 
+}
