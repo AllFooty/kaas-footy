@@ -120,7 +120,7 @@ export function VenueConstraints({ data, onUpdate }: VenueConstraintsProps): JSX
           <h2 className="text-2xl font-semibold text-[#1D1D1F] dark:text-white">
             Venue Constraints
           </h2>
-          <p className="text-sm text-[#424245] dark:text-[#86868B] mt-1">
+          <p className='text-sm text-[#424245] dark:text-[#86868B] mt-1'>
             Configure where matches will be played
           </p>
         </div>

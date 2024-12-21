@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ImageIcon } from "@/components/ui/icons"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { useEffect } from "react"
 
 interface BasicInfoStepProps {
   data: {
@@ -19,6 +20,15 @@ interface BasicInfoStepProps {
 }
 
 export function BasicInfoStep({ data, onUpdate }: BasicInfoStepProps) {
+  useEffect(() => {
+    console.log('Basic Info Configuration:', {
+      name: data.name,
+      description: data.description,
+      ageGroup: data.ageGroup,
+      competitionLevel: data.competitionLevel
+    })
+  }, [data])
+
   const handleImageUpload = (file: File) => {
     // TODO: Implement image upload logic
   }
@@ -26,7 +36,7 @@ export function BasicInfoStep({ data, onUpdate }: BasicInfoStepProps) {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-semibold text-[#1D1D1F] dark:text-white">
+        <h1 className='text-3xl font-semibold text-[#1D1D1F] dark:text-white'>
           Basic Tournament Information
         </h1>
         <p className="mt-2 text-[#424245] dark:text-[#86868B]">
