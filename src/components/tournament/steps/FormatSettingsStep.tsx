@@ -8,6 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useEffect } from "react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertTriangle } from "lucide-react"
 
 interface FormatSettingsStepProps {
   format: 'LEAGUE' | 'KNOCKOUT' | 'GROUP_KNOCKOUT' | null
@@ -24,6 +27,51 @@ interface FormatSettingsStepProps {
 }
 
 export function FormatSettingsStep({ format, settings, onUpdate }: FormatSettingsStepProps) {
+  useEffect(() => {
+    if (format) {
+      console.log('Format Settings Configuration:', {
+        format,
+        roundRobinType: settings.roundRobinType,
+        groupCount: settings.groupCount,
+        teamsPerGroup: settings.teamsPerGroup,
+        qualifiersPerGroup: settings.qualifiersPerGroup,
+        hasThirdPlace: settings.hasThirdPlace,
+        hasExtraTime: settings.hasExtraTime,
+        hasPenalties: settings.hasPenalties
+      })
+    }
+  }, [format, settings])
+
+  if (!format) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-semibold text-[#1D1D1F] dark:text-white">
+            Format Settings
+          </h1>
+          <p className="mt-2 text-[#424245] dark:text-[#86868B]">
+            Customize the settings for your tournament format.
+          </p>
+        </div>
+
+        <Alert variant="destructive" className="bg-red-500/10 border-red-500/20">
+          <AlertTriangle className="h-4 w-4 text-red-500" />
+          <AlertDescription className="text-red-500">
+            Please select a tournament format first
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
+
+  const handleRoundRobinTypeChange = (value: 'SINGLE' | 'DOUBLE') => {
+    console.log('Updating round robin type:', value)
+    onUpdate({ 
+      ...settings, 
+      roundRobinType: value 
+    })
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -42,9 +90,7 @@ export function FormatSettingsStep({ format, settings, onUpdate }: FormatSetting
               <Label>Round Robin Type</Label>
               <Select
                 value={settings.roundRobinType}
-                onValueChange={(value: 'SINGLE' | 'DOUBLE') =>
-                  onUpdate({ ...settings, roundRobinType: value })
-                }
+                onValueChange={handleRoundRobinTypeChange}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select round robin type" />
@@ -124,51 +170,55 @@ export function FormatSettingsStep({ format, settings, onUpdate }: FormatSetting
             </>
           )}
 
-          <div className="space-y-4">
-            <Label>Additional Settings</Label>
+          {format !== 'LEAGUE' && (
             <div className="space-y-4">
-              {(format === 'KNOCKOUT' || format === 'GROUP_KNOCKOUT') && (
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="third-place" className="cursor-pointer">
-                    Third Place Playoff
-                  </Label>
-                  <Switch
-                    id="third-place"
-                    checked={settings.hasThirdPlace}
-                    onCheckedChange={(checked) =>
-                      onUpdate({ ...settings, hasThirdPlace: checked })
-                    }
-                  />
-                </div>
-              )}
+              <Label>Additional Settings</Label>
+              <div className="space-y-4">
+                {(format === 'KNOCKOUT' || format === 'GROUP_KNOCKOUT') && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="third-place" className="cursor-pointer">
+                        Third Place Playoff
+                      </Label>
+                      <Switch
+                        id="third-place"
+                        checked={settings.hasThirdPlace}
+                        onCheckedChange={(checked) =>
+                          onUpdate({ ...settings, hasThirdPlace: checked })
+                        }
+                      />
+                    </div>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="extra-time" className="cursor-pointer">
-                  Extra Time
-                </Label>
-                <Switch
-                  id="extra-time"
-                  checked={settings.hasExtraTime}
-                  onCheckedChange={(checked) =>
-                    onUpdate({ ...settings, hasExtraTime: checked })
-                  }
-                />
-              </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="extra-time" className="cursor-pointer">
+                        Extra Time
+                      </Label>
+                      <Switch
+                        id="extra-time"
+                        checked={settings.hasExtraTime}
+                        onCheckedChange={(checked) =>
+                          onUpdate({ ...settings, hasExtraTime: checked })
+                        }
+                      />
+                    </div>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="penalties" className="cursor-pointer">
-                  Penalty Shootout
-                </Label>
-                <Switch
-                  id="penalties"
-                  checked={settings.hasPenalties}
-                  onCheckedChange={(checked) =>
-                    onUpdate({ ...settings, hasPenalties: checked })
-                  }
-                />
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="penalties" className="cursor-pointer">
+                        Penalty Shootout
+                      </Label>
+                      <Switch
+                        id="penalties"
+                        checked={settings.hasPenalties}
+                        onCheckedChange={(checked) =>
+                          onUpdate({ ...settings, hasPenalties: checked })
+                        }
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>
