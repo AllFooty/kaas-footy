@@ -301,8 +301,6 @@ export function TournamentCreator() {
 
   const isStepValid = useMemo(() => validateStep(currentStep), [
     currentStep,
-    formData,
-    stepStatus,
     validateStep
   ])
 

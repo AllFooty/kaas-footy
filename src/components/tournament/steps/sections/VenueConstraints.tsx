@@ -164,7 +164,7 @@ export function VenueConstraints({ data, onUpdate }: VenueConstraintsProps): JSX
                         <Info className="h-4 w-4 text-[#424245] dark:text-[#86868B]" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Enter a unique name for this venue (e.g., "Main Stadium", "Training Ground")</p>
+                        <p>Enter a unique name for this venue (e.g., &quot;Main Stadium&quot;, &quot;Training Ground&quot;)</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

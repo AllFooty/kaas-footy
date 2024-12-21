@@ -4,10 +4,11 @@ import { Trophy, Users, Calendar, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
-import type { Tournament } from "@/types"
+import type { Tournament } from "@/types/tournament"
+import Image from "next/image"; // Added import for Next.js Image component
 
 interface TournamentPreviewCardProps {
-  tournament: Pick<Tournament, 'id' | 'name' | 'description' | 'status' | 'format' | 'teams' | 'matches' | 'createdAt'>
+  tournament: Pick<Tournament, 'id' | 'name' | 'description' | 'status' | 'format' | 'teams' | 'matches' | 'createdAt' | 'basicInfo'>
 }
 
 export function TournamentPreviewCard({ tournament }: TournamentPreviewCardProps) {
@@ -95,8 +96,18 @@ export function TournamentPreviewCard({ tournament }: TournamentPreviewCardProps
               </div>
             </div>
           )}
+          {/* Added Image component here */}
+          {tournament.basicInfo && tournament.basicInfo.coverImage && (
+            <Image 
+              src={tournament.basicInfo.coverImage} 
+              alt={tournament.name} 
+              width={400}
+              height={192}
+              className="object-cover w-full h-48 rounded-t-lg"
+            />
+          )}
         </CardContent>
       </Card>
     </Link>
   )
-} 
+}
