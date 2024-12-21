@@ -288,4 +288,4 @@ export function VenueConstraints({ data, onUpdate }: VenueConstraintsProps): JSX
       </div>
     </div>
   )
-} 
+}

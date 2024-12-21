@@ -105,7 +105,7 @@ export function BasicInfoStep({ data, onUpdate }: BasicInfoStepProps) {
                   >
                     <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
                     <span className="mt-2 block text-sm text-gray-600 dark:text-gray-400">
-                      Upload a cover image
+                      Upload a cover image&nbsp;
                     </span>
                   </Label>
                 </div>
