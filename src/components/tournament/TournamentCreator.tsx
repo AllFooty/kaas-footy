@@ -299,9 +299,13 @@ export function TournamentCreator() {
     return isValid && errors.length === 0
   }
 
-  const isStepValid = useMemo(() => validateStep(currentStep), [
+  const validateStepMemoized = useCallback((step: CreatorStep) => {
+    return validateStep(step)
+  }, [])
+
+  const isStepValid = useMemo(() => validateStepMemoized(currentStep), [
     currentStep,
-    validateStep
+    validateStepMemoized
   ])
 
   const updateStepStatus = (step: CreatorStep, status: 'pending' | 'in-progress' | 'completed') => {
