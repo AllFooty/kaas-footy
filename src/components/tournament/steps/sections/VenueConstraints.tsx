@@ -50,7 +50,7 @@ export function VenueConstraints({ data, onUpdate }: VenueConstraintsProps): JSX
         newVenue.fields.forEach(field => {
           updatedData.availability.push({
             date: date.toISOString(),
-            timeSlots: [{ start: "09:00", end: "17:00" }],
+            timeSlots: [{ start: &quot;09:00&quot;, end: "17:00" }],
             venueId: newVenue.id,
             fieldId: field.id,
             isMatchDay: true
@@ -87,7 +87,7 @@ export function VenueConstraints({ data, onUpdate }: VenueConstraintsProps): JSX
       for (let date = start; date <= end; date.setDate(date.getDate() + 1)) {
         updatedData.availability.push({
           date: date.toISOString(),
-          timeSlots: [{ start: "09:00", end: "17:00" }],
+          timeSlots: [{ start: &quot;09:00&quot;, end: "17:00" }],
           venueId: venueId,
           fieldId: newField.id,
           isMatchDay: true

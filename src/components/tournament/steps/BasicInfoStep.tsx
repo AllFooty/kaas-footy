@@ -160,4 +160,4 @@ export function BasicInfoStep({ data, onUpdate }: BasicInfoStepProps) {
       </Card>
     </div>
   )
-} 
+}

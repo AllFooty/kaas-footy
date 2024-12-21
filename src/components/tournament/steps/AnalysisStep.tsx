@@ -35,7 +35,7 @@ export function AnalysisStep({ tournament, onUpdate }: AnalysisStepProps) {
       <Card className="p-6">
         <h2 className="text-2xl font-semibold mb-6">Tournament Analysis & Recommendations</h2>
         <p className="text-gray-600 dark:text-gray-400 mb-8">
-          Based on your preferences and constraints, we've generated the following scenarios. 
+          Based on your preferences and constraints, we&apos;ve generated the following scenarios. 
           Choose the one that best fits your needs.
         </p>
         <ScenarioComparison 
