@@ -299,9 +299,9 @@ export function TournamentCreator() {
     return isValid && errors.length === 0
   }
 
-  const validateStepMemoized = useCallback((step: CreatorStep) => {
-    return validateStep(step)
-  }, [])
+  const validateStepMemoized = useCallback((step: CreatorStep) => { 
+    return validateStep(step); 
+  }, [validateStep]);
 
   const isStepValid = useMemo(() => validateStepMemoized(currentStep), [
     currentStep,
@@ -712,4 +712,4 @@ export function TournamentCreator() {
       </div>
     </div>
   )
-} 
+}

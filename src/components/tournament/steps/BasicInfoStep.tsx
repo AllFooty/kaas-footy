@@ -7,6 +7,7 @@ import { ImageIcon } from "@/components/ui/icons"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useEffect } from "react"
+import Image from 'next/image'; // Import the Image component
 
 interface BasicInfoStepProps {
   data: {
@@ -73,10 +74,11 @@ export function BasicInfoStep({ data, onUpdate }: BasicInfoStepProps) {
             <div className="mt-2">
               {data.coverImage ? (
                 <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                  <img
+                  <Image
                     src={data.coverImage}
                     alt="Cover"
-                    className="w-full h-full object-cover"
+                    layout="fill"
+                    objectFit="cover"
                   />
                   <Button
                     variant="outline"
