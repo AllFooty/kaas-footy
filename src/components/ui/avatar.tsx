@@ -3,20 +3,42 @@
 import * as React from "react"
 import * as AvatarPrimitive from "@radix-ui/react-avatar"
 import { cn } from "@/lib/utils"
+import { useEffect, useState } from 'react'
+
+interface AvatarProps extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> {
+  src?: string
+  fallback?: string
+}
 
 const Avatar = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Root
-    ref={ref}
-    className={cn(
-      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
-      className
-    )}
-    {...props}
-  />
-))
+  AvatarProps
+>(({ className, src, fallback, ...props }, ref) => {
+  const [imgSrc, setImgSrc] = useState(src)
+  
+  useEffect(() => {
+    if (!src) return
+    
+    const img = new Image()
+    img.src = src
+    img.onload = () => setImgSrc(src)
+    img.onerror = () => {
+      console.warn(`Avatar image failed to load: ${src}`)
+      setImgSrc(fallback)
+    }
+  }, [src, fallback])
+
+  return (
+    <AvatarPrimitive.Root
+      ref={ref}
+      className={cn(
+        "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+        className
+      )}
+      {...props}
+    />
+  )
+})
 Avatar.displayName = AvatarPrimitive.Root.displayName
 
 const AvatarImage = React.forwardRef<

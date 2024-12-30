@@ -3,45 +3,80 @@
 import { Calendar } from "@/components/ui/calendar"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
+import { useCallback, useRef } from 'react'
 import type { TournamentConstraints } from '@/types/tournament'
 
 interface TournamentDurationProps {
   data: TournamentConstraints
-  onUpdate: (data: TournamentConstraints) => void
+  onUpdate: (updates: Partial<TournamentConstraints>) => void
 }
 
 export function TournamentDuration({ data, onUpdate }: TournamentDurationProps) {
-  const handleDateChange = (date: Date | null, isStart: boolean) => {
+  const previousValueRef = useRef(data.duration)
+
+  const formatDate = useCallback((date: string | undefined) => {
+    if (!date) return ''
+    return format(new Date(date), "PPP")
+  }, [])
+
+  const handleStartDateSelect = useCallback((date: Date | null) => {
     if (!date) return
 
-    const formattedDate = date.toISOString()
-    if (isStart) {
-      onUpdate({
-        ...data,
-        duration: {
-          ...data.duration,
-          startDate: formattedDate,
-          endDate: data.duration.isSingleDay ? formattedDate : data.duration.endDate
-        }
-      })
-    } else {
-      onUpdate({
-        ...data,
-        duration: {
-          ...data.duration,
-          endDate: formattedDate
-        }
-      })
+    const startDate = new Date(date)
+    startDate.setHours(12, 0, 0, 0)
+    
+    const updates = {
+      duration: {
+        ...data.duration,
+        startDate: startDate.toISOString(),
+        endDate: data.duration.isSingleDay ? startDate.toISOString() : data.duration.endDate
+      }
     }
-  }
+
+    // Only update if values actually changed
+    if (JSON.stringify(updates.duration) !== JSON.stringify(previousValueRef.current)) {
+      previousValueRef.current = updates.duration
+      onUpdate(updates)
+    }
+  }, [data.duration, onUpdate])
+
+  const handleEndDateSelect = useCallback((date: Date | null) => {
+    if (!date) return
+    
+    const endDate = new Date(date)
+    endDate.setHours(12, 0, 0, 0)
+
+    const updates = {
+      duration: {
+        ...data.duration,
+        endDate: endDate.toISOString()
+      }
+    }
+
+    if (JSON.stringify(updates.duration) !== JSON.stringify(previousValueRef.current)) {
+      previousValueRef.current = updates.duration
+      onUpdate(updates)
+    }
+  }, [data.duration, onUpdate])
+
+  const handleSingleDayToggle = useCallback((checked: boolean) => {
+    const updates = {
+      duration: {
+        ...data.duration,
+        isSingleDay: checked,
+        endDate: checked ? data.duration.startDate : data.duration.endDate
+      }
+    }
+
+    if (JSON.stringify(updates.duration) !== JSON.stringify(previousValueRef.current)) {
+      previousValueRef.current = updates.duration
+      onUpdate(updates)
+    }
+  }, [data.duration, onUpdate])
 
   return (
     <div className="space-y-6">
@@ -57,16 +92,7 @@ export function TournamentDuration({ data, onUpdate }: TournamentDurationProps) 
       <div className="flex items-center gap-2">
         <Switch
           checked={data.duration.isSingleDay}
-          onCheckedChange={(checked) => {
-            onUpdate({
-              ...data,
-              duration: {
-                ...data.duration,
-                isSingleDay: checked,
-                endDate: checked ? data.duration.startDate : data.duration.endDate
-              }
-            })
-          }}
+          onCheckedChange={handleSingleDayToggle}
         />
         <Label>Single day tournament</Label>
       </div>
@@ -76,23 +102,16 @@ export function TournamentDuration({ data, onUpdate }: TournamentDurationProps) 
           <Label>Start Date</Label>
           <Popover>
             <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-left font-normal"
-              >
+              <Button variant="outline" className="w-full justify-start text-left font-normal">
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {data.duration.startDate ? (
-                  format(new Date(data.duration.startDate), "PPP")
-                ) : (
-                  <span>Pick a date</span>
-                )}
+                {data.duration.startDate ? formatDate(data.duration.startDate) : <span>Pick a date</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
                 selected={data.duration.startDate ? new Date(data.duration.startDate) : undefined}
-                onSelect={(date) => handleDateChange(date, true)}
+                onSelect={handleStartDateSelect}
                 disabled={(date) => date < new Date()}
                 initialFocus
               />
@@ -112,11 +131,7 @@ export function TournamentDuration({ data, onUpdate }: TournamentDurationProps) 
                 disabled={data.duration.isSingleDay}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {data.duration.endDate ? (
-                  format(new Date(data.duration.endDate), "PPP")
-                ) : (
-                  <span>Pick a date</span>
-                )}
+                {data.duration.endDate ? formatDate(data.duration.endDate) : <span>Pick a date</span>}
               </Button>
             </PopoverTrigger>
             {!data.duration.isSingleDay && (
@@ -124,11 +139,8 @@ export function TournamentDuration({ data, onUpdate }: TournamentDurationProps) 
                 <Calendar
                   mode="single"
                   selected={data.duration.endDate ? new Date(data.duration.endDate) : undefined}
-                  onSelect={(date) => handleDateChange(date, false)}
-                  disabled={(date) => {
-                    const startDate = data.duration.startDate ? new Date(data.duration.startDate) : null
-                    return !startDate || date < startDate
-                  }}
+                  onSelect={handleEndDateSelect}
+                  disabled={(date) => !data.duration.startDate || date < new Date(data.duration.startDate)}
                   initialFocus
                 />
               </PopoverContent>

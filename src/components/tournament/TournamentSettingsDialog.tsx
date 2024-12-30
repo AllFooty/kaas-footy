@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { TournamentSettings } from "./tabs/TournamentSettings"
-import type { Tournament } from "@/types"
+import type { Tournament } from "@/types/tournament"
 
 interface TournamentSettingsDialogProps {
   tournament: Tournament

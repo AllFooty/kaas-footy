@@ -17,35 +17,43 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3", className)}
+      className={cn("w-full select-none", className)}
       classNames={{
-        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-        month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-medium text-[#1D1D1F] dark:text-white",
-        nav: "space-x-1 flex items-center",
+        months: "flex flex-col w-full",
+        month: "space-y-4 w-full",
+        caption: "flex justify-between px-2 pt-1 relative items-center mb-4",
+        caption_label: "text-sm font-medium",
+        nav: "flex items-center gap-1",
         nav_button: cn(
-          buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 text-[#424245] dark:text-[#86868B] hover:text-[#0066CC] dark:hover:text-[#0A84FF]"
-        ),
-        nav_button_previous: "absolute left-1",
-        nav_button_next: "absolute right-1",
-        table: "w-full border-collapse space-y-1",
-        head_row: "flex",
-        head_cell: "text-[#424245] dark:text-[#86868B] rounded-md w-9 font-normal text-[0.8rem]",
-        row: "flex w-full mt-2",
-        cell: cn(
-          "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-[#0066CC]/10 dark:[&:has([aria-selected])]:bg-[#0066CC]/20",
-          "focus-within:relative focus-within:z-20"
-        ),
-        day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 font-normal text-[#1D1D1F] dark:text-white hover:bg-[#F5F5F7] dark:hover:bg-[#2D2D2D]"
+          "h-7 w-7 p-0 opacity-50 hover:opacity-100"
         ),
-        day_selected: "bg-[#0066CC] text-white hover:bg-[#0077ED] hover:text-white",
-        day_today: "bg-[#F5F5F7] dark:bg-[#2D2D2D] text-[#0066CC] dark:text-[#0A84FF] font-medium",
-        day_outside: "text-[#424245]/50 dark:text-[#86868B]/50",
-        day_disabled: "text-[#424245]/30 dark:text-[#86868B]/30",
+        nav_button_previous: "",
+        nav_button_next: "",
+        table: "w-full border-collapse",
+        head_row: "flex w-full",
+        head_cell: "text-muted-foreground w-full h-8 font-normal text-[0.8rem] uppercase",
+        row: "flex w-full mt-2",
+        cell: "relative w-full h-9 p-0 text-center text-sm focus-within:relative focus-within:z-20",
+        day: cn(
+          "h-10 w-10 p-0 mx-auto font-normal",
+          "hover:bg-muted rounded-md transition-colors",
+          "aria-selected:opacity-100"
+        ),
+        day_range_start: "day-range-start",
+        day_range_end: "day-range-end",
+        day_selected: cn(
+          "bg-primary/20 text-primary font-medium",
+          "hover:bg-primary/30 hover:text-primary",
+          "ring-1 ring-primary/20"
+        ),
+        day_today: cn(
+          "bg-accent/10 text-accent-foreground font-medium",
+          "ring-1 ring-accent/50"
+        ),
+        day_outside: "text-muted-foreground opacity-50",
+        day_disabled: "text-muted-foreground opacity-50",
+        day_hidden: "invisible",
         ...classNames,
       }}
       components={{

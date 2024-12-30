@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Slider } from "@/components/ui/slider"
+import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Info } from "lucide-react"
@@ -11,6 +11,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertTriangle } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { MapPin, Clock } from "lucide-react"
 
 interface VisionCollectionStepProps {
   data: {
@@ -23,23 +27,30 @@ interface VisionCollectionStepProps {
       matchBalance: boolean
       restTime: boolean
     }
+    preferences: {
+      breakTime: number
+    }
   }
   format: 'LEAGUE' | 'KNOCKOUT' | 'GROUP_KNOCKOUT' | null
   onUpdate: (data: VisionCollectionStepProps['data']) => void
 }
 
 export function VisionCollectionStep({ data, format, onUpdate }: VisionCollectionStepProps) {
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-semibold text-[#1D1D1F] dark:text-white">
-          Tournament Vision
-        </h1>
-        <p className="mt-2 text-[#424245] dark:text-[#86868B]">
-          Define your ideal tournament setup and priorities.
-        </p>
-      </div>
+  const hasErrors = data.targetTeamCount < 4 || data.matchDuration < 15
 
+  return (
+    <div className="space-y-6">
+      {hasErrors && (
+        <Alert variant="destructive" className="bg-red-500/10 border-red-500/20">
+          <AlertTriangle className="h-4 w-4 text-red-500" />
+          <AlertDescription className="text-red-500">
+            <ul className="list-disc pl-4">
+              {data.targetTeamCount < 4 && <li>Minimum 4 teams required</li>}
+              {data.matchDuration < 15 && <li>Minimum match duration is 15 minutes</li>}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
       <Card className="rounded-2xl border-0 shadow-sm">
         <CardContent className="p-6 space-y-8">
           <div className="space-y-6">
@@ -77,42 +88,64 @@ export function VisionCollectionStep({ data, format, onUpdate }: VisionCollectio
               </div>
 
               <div className="space-y-2">
-                <Label>Match Duration (minutes)</Label>
-                <Slider
-                  value={[data.matchDuration]}
-                  onValueChange={([value]) => onUpdate({ 
-                    ...data, 
-                    matchDuration: value 
-                  })}
-                  min={60}
-                  max={120}
-                  step={5}
-                  className="py-4"
-                />
-                <div className="flex justify-between text-sm text-[#86868B]">
-                  <span>60 min</span>
-                  <span>{data.matchDuration} min</span>
-                  <span>120 min</span>
+                <div className="flex items-center justify-between">
+                  <Label>Match Duration</Label>
+                  <span className="text-sm font-medium text-[#0066CC]">
+                    {data.matchDuration} minutes
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                  {[15, 30, 45, 60, 75, 90].map((duration) => (
+                    <Button
+                      key={duration}
+                      variant="outline"
+                      onClick={() => onUpdate({ 
+                        ...data, 
+                        matchDuration: duration 
+                      })}
+                      className={cn(
+                        "h-10 px-4",
+                        data.matchDuration === duration 
+                          ? "bg-[#0066CC] text-white border-[#0066CC] hover:bg-[#0066CC] hover:text-white"
+                          : "border-[#E5E5EA] text-[#86868B] hover:bg-[#F5F5F5] hover:text-[#1D1D1F]"
+                      )}
+                    >
+                      {duration}'
+                    </Button>
+                  ))}
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>Break Time Between Matches (minutes)</Label>
-                <Slider
-                  value={[data.breakTime]}
-                  onValueChange={([value]) => onUpdate({ 
-                    ...data, 
-                    breakTime: value 
-                  })}
-                  min={5}
-                  max={30}
-                  step={5}
-                  className="py-4"
-                />
-                <div className="flex justify-between text-sm text-[#86868B]">
-                  <span>5 min</span>
-                  <span>{data.breakTime} min</span>
-                  <span>30 min</span>
+                <div className="flex items-center justify-between">
+                  <Label>Break Time Between Matches</Label>
+                  <span className="text-sm font-medium text-[#0066CC]">
+                    {data.breakTime} minutes
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                  {[5, 10, 15, 20, 25, 30].map((duration) => (
+                    <Button
+                      key={duration}
+                      variant="outline"
+                      onClick={() => onUpdate({
+                        ...data,
+                        breakTime: duration,
+                        preferences: {
+                          ...data.preferences,
+                          breakTime: duration,
+                        },
+                      })}
+                      className={cn(
+                        "h-10 px-4",
+                        data.breakTime === duration 
+                          ? "bg-[#0066CC] text-white border-[#0066CC] hover:bg-[#0066CC] hover:text-white"
+                          : "border-[#E5E5EA] text-[#86868B] hover:bg-[#F5F5F5] hover:text-[#1D1D1F]"
+                      )}
+                    >
+                      {duration}'
+                    </Button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -128,50 +161,73 @@ export function VisionCollectionStep({ data, format, onUpdate }: VisionCollectio
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Venue Usage Efficiency</Label>
+                  <Label>Schedule Priority</Label>
                   <p className="text-sm text-[#86868B]">
-                    Optimize field allocation and minimize venue rental costs
+                    Choose between optimizing for venue efficiency or rest time
                   </p>
                 </div>
-                <Switch
-                  checked={data.priorities.venueEfficiency}
-                  onCheckedChange={(checked) => onUpdate({
-                    ...data,
-                    priorities: { ...data.priorities, venueEfficiency: checked }
-                  })}
-                />
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Home/Away Match Balance</Label>
-                  <p className="text-sm text-[#86868B]">
-                    Ensure fair distribution of home and away matches
-                  </p>
-                </div>
-                <Switch
-                  checked={data.priorities.matchBalance}
-                  onCheckedChange={(checked) => onUpdate({
+              <div className="grid grid-cols-1 gap-3">
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "justify-between px-4 py-6",
+                    data.priorities.venueEfficiency && "border-primary"
+                  )}
+                  onClick={() => onUpdate({
                     ...data,
-                    priorities: { ...data.priorities, matchBalance: checked }
+                    priorities: {
+                      ...data.priorities,
+                      venueEfficiency: true,
+                      restTime: false
+                    }
                   })}
-                />
-              </div>
+                >
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    <div className="text-left">
+                      <div className="font-medium">Venue Usage Efficiency</div>
+                      <p className="text-sm text-muted-foreground">
+                        Optimize field allocation and minimize venue rental costs
+                      </p>
+                    </div>
+                  </div>
+                  <div className={cn(
+                    "h-4 w-4 rounded-full border",
+                    data.priorities.venueEfficiency && "bg-primary"
+                  )} />
+                </Button>
 
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Maximize Rest Time</Label>
-                  <p className="text-sm text-[#86868B]">
-                    Prioritize adequate rest periods between matches
-                  </p>
-                </div>
-                <Switch
-                  checked={data.priorities.restTime}
-                  onCheckedChange={(checked) => onUpdate({
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "justify-between px-4 py-6",
+                    data.priorities.restTime && "border-primary"
+                  )}
+                  onClick={() => onUpdate({
                     ...data,
-                    priorities: { ...data.priorities, restTime: checked }
+                    priorities: {
+                      ...data.priorities,
+                      venueEfficiency: false,
+                      restTime: true
+                    }
                   })}
-                />
+                >
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    <div className="text-left">
+                      <div className="font-medium">Maximize Rest Time</div>
+                      <p className="text-sm text-muted-foreground">
+                        Prioritize adequate rest periods between matches
+                      </p>
+                    </div>
+                  </div>
+                  <div className={cn(
+                    "h-4 w-4 rounded-full border",
+                    data.priorities.restTime && "bg-primary"
+                  )} />
+                </Button>
               </div>
             </div>
           </div>

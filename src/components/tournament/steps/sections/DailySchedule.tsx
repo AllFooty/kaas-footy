@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -26,18 +26,12 @@ const DEFAULT_TIME_SLOTS: TimeSlot[] = [
   { start: "09:00", end: "17:00" }
 ]
 
-export function DailySchedule({ data, onUpdate }: DailyScheduleProps): JSX.Element {
+export default function DailySchedule({ data, onUpdate }: DailyScheduleProps): JSX.Element {
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set())
   const [timeErrors, setTimeErrors] = useState<Record<string, string>>({})
 
   // Effect to regenerate schedule when venues/fields change
-  useEffect(() => {
-    if (data.duration.startDate && data.duration.endDate) {
-      regenerateSchedule()
-    }
-  }, [data.venues, data.duration.startDate, data.duration.endDate, regenerateSchedule])
-
-  const regenerateSchedule = (): void => {
+  const regenerateSchedule = useCallback(() => {
     if (!data.duration.startDate || !data.duration.endDate) return
 
     const start = new Date(data.duration.startDate)
@@ -66,7 +60,11 @@ export function DailySchedule({ data, onUpdate }: DailyScheduleProps): JSX.Eleme
       ...data,
       availability: newAvailability
     })
-  }
+  }, [data.venues, data.duration.startDate, data.duration.endDate, onUpdate])
+
+  useEffect(() => {
+    regenerateSchedule();
+  }, [regenerateSchedule]);
 
   const validateTimeSlots = (slots: TimeSlot[]): boolean => {
     for (let i = 0; i < slots.length; i++) {

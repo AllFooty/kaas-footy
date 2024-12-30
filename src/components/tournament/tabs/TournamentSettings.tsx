@@ -93,7 +93,17 @@ export function TournamentSettings({ tournament, onUpdate, onCancel }: Tournamen
               </Label>
               <Switch 
                 id="third-place" 
-                defaultChecked={tournament.settings.hasThirdPlace} 
+                defaultChecked={tournament.settings.knockout?.thirdPlace ?? false} 
+                onCheckedChange={(checked) => setFormData(prev => ({
+                  ...prev,
+                  settings: {
+                    ...prev.settings,
+                    knockout: {
+                      ...prev.settings.knockout,
+                      thirdPlace: checked
+                    }
+                  }
+                }))}
               />
             </div>
           )}
@@ -103,7 +113,17 @@ export function TournamentSettings({ tournament, onUpdate, onCancel }: Tournamen
             </Label>
             <Switch 
               id="extra-time" 
-              defaultChecked={tournament.settings.hasExtraTime} 
+              defaultChecked={tournament.settings.matchDuration.extraTime !== undefined} 
+              onCheckedChange={(checked) => setFormData(prev => ({
+                ...prev,
+                settings: {
+                  ...prev.settings,
+                  matchDuration: {
+                    ...prev.settings.matchDuration,
+                    extraTime: checked ? 30 : undefined
+                  }
+                }
+              }))}
             />
           </div>
           <div className="flex items-center justify-between">
@@ -112,7 +132,17 @@ export function TournamentSettings({ tournament, onUpdate, onCancel }: Tournamen
             </Label>
             <Switch 
               id="penalties" 
-              defaultChecked={tournament.settings.hasPenalties} 
+              defaultChecked={tournament.settings.matchDuration.penalties ?? false} 
+              onCheckedChange={(checked) => setFormData(prev => ({
+                ...prev,
+                settings: {
+                  ...prev.settings,
+                  matchDuration: {
+                    ...prev.settings.matchDuration,
+                    penalties: checked
+                  }
+                }
+              }))}
             />
           </div>
         </CardContent>

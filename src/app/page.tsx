@@ -7,7 +7,7 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] px-4">
       <div className="max-w-3xl text-center space-y-6">
         <h1 className="text-4xl sm:text-5xl font-bold text-[#1D1D1F] dark:text-white">
-          Create and Manage Football Tournaments with Ease
+          Create and Manage Soccer Tournaments with Ease
         </h1>
         <p className="text-lg text-[#424245] dark:text-[#86868B]">
           Organize leagues, knockouts, or hybrid tournaments. Track scores, standings, and more in real-time.

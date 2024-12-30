@@ -3,13 +3,14 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { PlusCircle, Users } from "lucide-react"
-import type { Tournament } from "@/types"
+import type { Team, Match } from '@/types/tournament'
 
 interface TournamentTeamsProps {
-  tournament: Tournament
+  teams: Team[]
+  matches: Match[]
 }
 
-export function TournamentTeams({ tournament }: TournamentTeamsProps) {
+export function TournamentTeams({ teams, matches }: TournamentTeamsProps) {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -25,7 +26,7 @@ export function TournamentTeams({ tournament }: TournamentTeamsProps) {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {tournament.teams.map((team) => (
+        {teams.map((team) => (
           <Card key={team.id} className="p-4 border-0 bg-white dark:bg-[#1D1D1F] shadow-sm">
             <div className="flex items-center gap-4">
               <div 
@@ -50,7 +51,7 @@ export function TournamentTeams({ tournament }: TournamentTeamsProps) {
         ))}
       </div>
 
-      {tournament.teams.length === 0 && (
+      {teams.length === 0 && (
         <div className="text-center py-12 text-[#424245] dark:text-[#86868B]">
           No teams added yet
         </div>

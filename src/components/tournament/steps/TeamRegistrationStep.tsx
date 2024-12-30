@@ -8,24 +8,24 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ImageUpload } from "@/components/ui/image-upload"
 import { ColorPicker } from "@/components/ui/color-picker"
-import { Plus, Trash2, ChevronLeft, ArrowRight } from "lucide-react"
+import { Plus, Trash2, AlertTriangle } from "lucide-react"
 import type { Tournament, Team } from '@/types/tournament'
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface TeamRegistrationStepProps {
   tournament: Tournament
   onUpdate: (tournament: Tournament) => void
-  onNext: () => void
-  onBack: () => void
 }
+
+type TeamFormData = Partial<Pick<Team, 'name' | 'logo' | 'primaryColor' | 'secondaryColor' | 'website'>>
 
 export function TeamRegistrationStep({
   tournament,
   onUpdate,
-  onNext,
-  onBack
 }: TeamRegistrationStepProps) {
   const [teams, setTeams] = useState<Team[]>(tournament.teams)
-  const [currentTeam, setCurrentTeam] = useState<Partial<Team>>({})
+  const [currentTeam, setCurrentTeam] = useState<TeamFormData>({})
+  const [isClient, setIsClient] = useState(false)
   
   const handleAddTeam = () => {
     if (!currentTeam.name) return
@@ -59,122 +59,111 @@ export function TeamRegistrationStep({
     })
   }
 
-  const canProceed = teams.length >= tournament.vision.targetTeamCount
-
+  const hasErrors = tournament.teams.length !== tournament.vision.targetTeamCount
+  
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Team Registration</h2>
-        <Button variant="ghost" size="sm" onClick={onBack}>
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
-      </div>
-
-      <Card className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="text-lg font-medium mb-4">Add New Team</h3>
-            <div className="space-y-4">
-              <div>
-                <Label>Team Name</Label>
-                <Input
-                  value={currentTeam.name || ''}
-                  onChange={e => setCurrentTeam({ ...currentTeam, name: e.target.value })}
-                  placeholder="Enter team name"
-                />
-              </div>
-              
-              <div>
-                <Label>Team Logo</Label>
-                <ImageUpload
-                  value={currentTeam.logo}
-                  onChange={url => setCurrentTeam({ ...currentTeam, logo: url })}
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-6">
+      {hasErrors && (
+        <Alert variant="destructive" className="bg-red-500/10 border-red-500/20">
+          <AlertTriangle className="h-4 w-4 text-red-500" />
+          <AlertDescription className="text-red-500">
+            Please register {tournament.vision.targetTeamCount} teams
+          </AlertDescription>
+        </Alert>
+      )}
+      <div className="space-y-8 max-w-4xl mx-auto">
+        <Card className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-lg font-medium mb-4">Add New Team</h3>
+              <div className="space-y-4">
                 <div>
-                  <Label>Primary Color</Label>
-                  <ColorPicker
-                    value={currentTeam.primaryColor || '#000000'}
-                    onChange={color => setCurrentTeam({ ...currentTeam, primaryColor: color })}
+                  <Label>Team Name</Label>
+                  <Input
+                    value={currentTeam.name || ''}
+                    onChange={e => setCurrentTeam({ ...currentTeam, name: e.target.value })}
+                    placeholder="Enter team name"
                   />
                 </div>
+                
                 <div>
-                  <Label>Secondary Color</Label>
-                  <ColorPicker
-                    value={currentTeam.secondaryColor || '#FFFFFF'}
-                    onChange={color => setCurrentTeam({ ...currentTeam, secondaryColor: color })}
+                  <Label>Team Logo</Label>
+                  <ImageUpload
+                    value={currentTeam.logo}
+                    onChange={url => setCurrentTeam({ ...currentTeam, logo: url })}
                   />
                 </div>
-              </div>
-              
-              <div>
-                <Label>Website (Optional)</Label>
-                <Input
-                  value={currentTeam.website || ''}
-                  onChange={e => setCurrentTeam({ ...currentTeam, website: e.target.value })}
-                  placeholder="https://"
-                />
-              </div>
-              
-              <Button
-                onClick={handleAddTeam}
-                disabled={!currentTeam.name}
-                className="w-full"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Team
-              </Button>
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium mb-4">Registered Teams ({teams.length}/{tournament.vision.targetTeamCount})</h3>
-            <div className="space-y-3">
-              {teams.map(team => (
-                <div
-                  key={team.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    {team.logo && (
-                      <Image 
-                        src={team.logo} 
-                        alt={team.name} 
-                        width={32} 
-                        height={32} 
-                        className="rounded-full" 
-                      />
-                    )}
-                    <span>{team.name}</span>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Primary Color</Label>
+                    <ColorPicker
+                      value={currentTeam.primaryColor || '#000000'}
+                      onChange={color => setCurrentTeam({ ...currentTeam, primaryColor: color })}
+                    />
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveTeam(team.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div>
+                    <Label>Secondary Color</Label>
+                    <ColorPicker
+                      value={currentTeam.secondaryColor || '#FFFFFF'}
+                      onChange={color => setCurrentTeam({ ...currentTeam, secondaryColor: color })}
+                    />
+                  </div>
                 </div>
-              ))}
+                
+                <div>
+                  <Label>Website (Optional)</Label>
+                  <Input
+                    value={currentTeam.website || ''}
+                    onChange={e => setCurrentTeam({ ...currentTeam, website: e.target.value })}
+                    placeholder="https://"
+                  />
+                </div>
+                
+                <Button
+                  onClick={handleAddTeam}
+                  disabled={!currentTeam.name}
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Team
+                </Button>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-medium mb-4">Registered Teams ({teams.length}/{tournament.vision.targetTeamCount})</h3>
+              <div className="space-y-3">
+                {teams.map(team => (
+                  <div
+                    key={team.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      {team.logo && (
+                        <Image 
+                          src={team.logo} 
+                          alt={team.name} 
+                          width={32} 
+                          height={32} 
+                          className="rounded-full" 
+                        />
+                      )}
+                      <span>{team.name}</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveTeam(team.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
-
-      <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={onBack}>
-          Back
-        </Button>
-        <Button
-          onClick={onNext}
-          disabled={!canProceed}
-        >
-          Continue to Schedule
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
+        </Card>
       </div>
     </div>
   )

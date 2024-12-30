@@ -1,14 +1,17 @@
 'use client'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import type { Tournament } from "@/types"
+import type { Team, Match, TournamentFormat, TournamentFormatSettings } from '@/types/tournament'
 
 interface TournamentStandingsProps {
-  tournament: Tournament
+  teams: Team[]
+  matches: Match[]
+  format: TournamentFormat
+  settings: TournamentFormatSettings
 }
 
-export function TournamentStandings({ tournament }: TournamentStandingsProps) {
-  const sortedTeams = [...tournament.teams].sort((a, b) => b.stats.points - a.stats.points)
+export function TournamentStandings({ teams, matches, format, settings }: TournamentStandingsProps) {
+  const sortedTeams = [...teams].sort((a, b) => b.stats.points - a.stats.points)
 
   return (
     <div className="p-6">

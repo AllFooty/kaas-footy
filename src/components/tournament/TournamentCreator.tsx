@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, Save, Check, ChevronRight } from "lucide-react"
@@ -22,6 +22,9 @@ import { ScheduleGenerator } from '@/lib/services/scheduleGenerator'
 import { useRouter } from 'next/navigation'
 import { useToast } from "@/components/ui/use-toast"
 import { TournamentJourneyHeader } from "./TournamentJourneyHeader"
+import { TournamentDuration } from "./steps/sections/TournamentDuration"
+import { isBefore } from "date-fns"
+import type { TournamentScenario } from '@/lib/services/scenarioGenerator'
 
 type CreatorStep = 'basic-info' | 'format-selection' | 'format-settings' | 'vision-collection' | 
            'constraint-collection' | 'analysis' | 'interactive-planning' | 'plan-confirmation' |
@@ -45,6 +48,7 @@ interface TournamentFormData {
     hasThirdPlace: boolean
     hasExtraTime: boolean
     hasPenalties: boolean
+    knockoutLegs: 'SINGLE' | 'DOUBLE'
   }
   vision: {
     targetTeamCount: number
@@ -55,6 +59,9 @@ interface TournamentFormData {
       venueEfficiency: boolean
       matchBalance: boolean
       restTime: boolean
+    }
+    preferences: {
+      breakTime: number
     }
   }
   constraints: TournamentConstraints
@@ -112,17 +119,21 @@ export function TournamentCreator() {
       qualifiersPerGroup: 2,
       hasThirdPlace: true,
       hasExtraTime: true,
-      hasPenalties: true
+      hasPenalties: true,
+      knockoutLegs: 'SINGLE'
     },
     vision: {
       targetTeamCount: 16,
-      matchDuration: 90,
-      breakTime: 15,
+      matchDuration: 30,
+      breakTime: 10,
       totalDuration: 14,
       priorities: {
         venueEfficiency: true,
         matchBalance: true,
         restTime: true
+      },
+      preferences: {
+        breakTime: 10
       }
     },
     constraints: {
@@ -171,6 +182,21 @@ export function TournamentCreator() {
     'team-registration': 'pending',
     'schedule-finalization': 'pending'
   })
+
+  const [startDate, setStartDate] = useState<Date | null>(null)
+  const [endDate, setEndDate] = useState<Date | null>(null)
+
+  const handleStartDateChange = (date: Date | null) => {
+    setStartDate(date)
+    // If end date exists and is before new start date, clear it
+    if (endDate && date && isBefore(endDate, date)) {
+      setEndDate(null)
+    }
+  }
+
+  const handleEndDateChange = (date: Date | null) => {
+    setEndDate(date)
+  }
 
   const getCurrentStepConfig = () => {
     switch (currentStep) {
@@ -234,7 +260,7 @@ export function TournamentCreator() {
 
   const config = getCurrentStepConfig()
 
-  const validateStep = (step: CreatorStep): boolean => {
+  const validateStep = useCallback((step: CreatorStep): boolean => {
     const errors: string[] = []
     const dependencies = getStepDependencies(step)
     
@@ -250,17 +276,15 @@ export function TournamentCreator() {
     let isValid = true
     switch (step) {
       case 'basic-info':
-        isValid = !!(formData.basicInfo.name.trim() && formData.basicInfo.description.trim())
-        if (!formData.basicInfo.name.trim()) {
-          errors.push('Tournament name is required')
-        }
-        if (!formData.basicInfo.description.trim()) {
-          errors.push('Tournament description is required')
+        isValid = !!formData.basicInfo.name.trim()
+        if (!isValid) {
+          if (!formData.basicInfo.name.trim()) errors.push('Tournament name is required')
         }
         break
 
       case 'format-selection':
-        if (!formData.format) {
+        isValid = !!formData.format
+        if (!isValid) {
           errors.push('Please select a tournament format')
         }
         break
@@ -277,8 +301,8 @@ export function TournamentCreator() {
         if (formData.vision.targetTeamCount < 4) {
           errors.push('Minimum 4 teams required')
         }
-        if (formData.vision.matchDuration < 60) {
-          errors.push('Minimum match duration is 60 minutes')
+        if (formData.vision.matchDuration < 15) {
+          errors.push('Minimum match duration is 15 minutes')
         }
         break
 
@@ -290,14 +314,19 @@ export function TournamentCreator() {
           errors.push('At least one venue is required')
         }
         break
-    }
 
-    if (errors.length > 0) {
-      setStepErrors(errors)
+      case 'team-registration':
+        isValid = formData.teams.length === formData.vision.targetTeamCount
+        if (!isValid) {
+          errors.push(`Please register ${formData.vision.targetTeamCount} teams`)
+        }
+        break
     }
     
-    return isValid && errors.length === 0
-  }
+    setStepErrors(errors)
+    
+    return isValid
+  }, [formData, stepStatus])
 
   const validateStepMemoized = useCallback((step: CreatorStep) => { 
     return validateStep(step); 
@@ -378,6 +407,7 @@ export function TournamentCreator() {
           thirdPlace: formData.settings.hasThirdPlace,
           awayGoals: false,
           replays: false,
+          legs: formData.settings.knockoutLegs
         } : undefined,
         group: formData.format === 'GROUP_KNOCKOUT' ? {
           numberOfGroups: formData.settings.groupCount,
@@ -481,17 +511,21 @@ export function TournamentCreator() {
         qualifiersPerGroup: tournament.settings.group?.qualifiersPerGroup || 2,
         hasThirdPlace: tournament.settings.knockout?.thirdPlace || false,
         hasExtraTime: tournament.settings.matchDuration.extraTime !== undefined,
-        hasPenalties: tournament.settings.matchDuration.penalties || false
+        hasPenalties: tournament.settings.matchDuration.penalties || false,
+        knockoutLegs: tournament.settings.knockout?.legs || 'SINGLE'
       },
       vision: {
         targetTeamCount: tournament.vision.targetTeamCount,
         matchDuration: tournament.settings.matchDuration.regularTime,
-        breakTime: tournament.vision.preferences?.breakTime || 15,
-        totalDuration: totalDuration, // Use calculated duration
+        breakTime: tournament.vision.preferences?.breakTime || 10,
+        totalDuration: totalDuration,
         priorities: {
           venueEfficiency: tournament.vision.priorities.venueEfficiency,
           matchBalance: tournament.vision.priorities.matchBalance,
           restTime: tournament.vision.priorities.restTime
+        },
+        preferences: {
+          breakTime: tournament.vision.preferences?.breakTime || 10
         }
       },
       constraints: tournament.constraints
@@ -514,18 +548,54 @@ export function TournamentCreator() {
   }, [formData]);
 
   // Update the handleStepUpdate function
-  const handleStepUpdate = (stepData: Partial<TournamentFormData>) => {
-    console.log('Updating step data:', stepData);
+  const handleStepUpdate = useCallback((stepData: Partial<TournamentFormData>) => {
     setFormData(prev => {
+      // Deep compare objects to prevent unnecessary updates
       const updated = {
         ...prev,
         ...stepData,
         teams: stepData.teams || prev.teams,
+        constraints: stepData.constraints || prev.constraints, // Ensure constraints are preserved
       };
-      console.log('Updated form data:', updated);
+      
+      // Log the update
+      console.log('Form data update:', {
+        prevTeams: prev.teams?.length,
+        newTeams: updated.teams?.length,
+        prevConstraints: !!prev.constraints,
+        newConstraints: !!updated.constraints
+      });
+      
+      // Only update if there are actual changes
+      if (JSON.stringify(prev) === JSON.stringify(updated)) {
+        return prev;
+      }
+      
       return updated;
     });
-  };
+  }, []); // Empty dependency array since we're using the function form of setState
+
+  // Remove or modify the validateStep useEffect that's causing extra renders
+  useEffect(() => {
+    // Only validate when step changes, not on every form data update
+    validateStep(currentStep)
+  }, [currentStep, validateStep]) // Remove formData dependency
+
+  const handleConstraintsUpdate = useCallback((updatedConstraints: TournamentConstraints) => {
+    setFormData(prev => {
+      // Only update if there are actual changes
+      if (JSON.stringify(prev.constraints) === JSON.stringify(updatedConstraints)) {
+        return prev;
+      }
+      
+      return {
+        ...prev,
+        constraints: updatedConstraints,
+      };
+    });
+  }, []);
+
+  const [selectedScenario, setSelectedScenario] = useState<TournamentScenario | null>(null)
 
   return (
     <div className="min-h-screen bg-background">
@@ -533,25 +603,10 @@ export function TournamentCreator() {
         <TournamentJourneyHeader
           currentStep={currentStep}
           progress={progress}
-          title={config.title}
-          description={config.description}
           stepStatus={stepStatus}
         />
 
         <div className="mt-8">
-          {stepErrors.length > 0 && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                <ul className="list-disc pl-4">
-                  {stepErrors.map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
-              </AlertDescription>
-            </Alert>
-          )}
-
           {/* Step Content */}
           <div className="relative glass p-6 rounded-2xl">
             {currentStep === 'basic-info' && (
@@ -576,11 +631,16 @@ export function TournamentCreator() {
               <FormatSettingsStep
                 format={formData.format}
                 settings={formData.settings}
+                targetTeamCount={formData.vision.targetTeamCount}
                 onUpdate={(newSettings) => {
                   setFormData(prev => ({
                     ...prev,
-                    settings: newSettings
+                    settings: {
+                      ...newSettings,
+                      knockoutLegs: prev.settings.knockoutLegs
+                    }
                   }))
+                  updateStepStatus('format-settings', 'completed')
                 }}
               />
             )}
@@ -611,8 +671,9 @@ export function TournamentCreator() {
             {currentStep === 'analysis' && (
               <AnalysisStep
                 tournament={createTournamentFromFormData(formData)}
-                onUpdate={(updatedTournament) => {
+                onUpdate={(updatedTournament, scenario) => {
                   console.log('Analysis step update:', updatedTournament);
+                  setSelectedScenario(scenario)
                   handleStepUpdate({
                     teams: updatedTournament.teams,
                     format: updatedTournament.format,
@@ -627,6 +688,7 @@ export function TournamentCreator() {
             {currentStep === 'interactive-planning' && (
               <InteractivePlanningStep
                 tournament={tournamentData}
+                selectedScenario={selectedScenario}
                 onUpdate={(updatedTournament) => {
                   console.log('Updating tournament:', updatedTournament)
                   setFormData(prev => ({
@@ -641,8 +703,7 @@ export function TournamentCreator() {
                 tournament={createTournamentFromFormData(formData)}
                 matches={scheduleResult?.matches || {}}
                 conflicts={scheduleResult?.conflicts || []}
-                onConfirm={() => handleNext()}
-                onBack={handleBack}
+                selectedScenario={selectedScenario}
                 onModify={(section) => {
                   const stepMap = {
                     basic: 'basic-info',
@@ -663,16 +724,12 @@ export function TournamentCreator() {
                     teams: updatedTournament.teams
                   }))
                 }}
-                onNext={handleNext}
-                onBack={handleBack}
               />
             )}
             {currentStep === 'schedule-finalization' && (
               <ScheduleFinalizationStep
                 tournament={createTournamentFromFormData(formData)}
                 matches={scheduleResult?.matches || {}}
-                onPublish={handlePublishSchedule}
-                onBack={handleBack}
                 onRegenerateSchedule={() => generateSchedule(createTournamentFromFormData(formData))}
               />
             )}
@@ -691,14 +748,19 @@ export function TournamentCreator() {
             </Button>
 
             <Button
-              onClick={handleNext}
-              disabled={!isStepValid}
+              onClick={currentStep === 'schedule-finalization' ? handlePublishSchedule : handleNext}
+              disabled={!isStepValid || (currentStep === 'plan-confirmation' && scheduleResult?.conflicts.length > 0)}
               className="rounded-full bg-[#0066CC] hover:bg-[#0077ED]"
             >
-              {currentStepIndex === steps.length - 1 ? (
+              {currentStep === 'schedule-finalization' ? (
                 <>
                   <Check className="mr-2 h-4 w-4" />
-                  Complete Setup
+                  Publish Schedule
+                </>
+              ) : currentStep === 'plan-confirmation' ? (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  Confirm Plan
                 </>
               ) : (
                 <>

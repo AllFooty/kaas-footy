@@ -1,6 +1,6 @@
 {
-  "/not-found": "app/not-found.js",
   "/page": "app/page.js",
+  "/tournaments/create/page": "app/tournaments/create/page.js",
   "/tournaments/hub/page": "app/tournaments/hub/page.js",
-  "/tournaments/create/page": "app/tournaments/create/page.js"
+  "/tournaments/[id]/page": "app/tournaments/[id]/page.js"
 }

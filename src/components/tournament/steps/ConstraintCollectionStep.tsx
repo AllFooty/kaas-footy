@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { TournamentDuration } from './sections/TournamentDuration'
 import { VenueConstraints } from './sections/VenueConstraints'
-import { DailySchedule } from './sections/DailySchedule'
-import { Alert } from '@/components/ui/alert'
+import DailySchedule from './sections/DailySchedule'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertTriangle } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import type { TournamentConstraints } from '@/types/tournament'
 
@@ -18,44 +19,38 @@ export function ConstraintCollectionStep({
   onUpdate 
 }: ConstraintCollectionStepProps): JSX.Element {
   const [errors, setErrors] = useState<string[]>([])
+  const previousDataRef = useRef(data)
 
-  const validateConstraints = (): boolean => {
+  const handleUpdate = useCallback((updates: Partial<TournamentConstraints>) => {
+    const updatedData = {
+      ...data,
+      ...updates
+    }
+
+    // Prevent unnecessary updates by comparing with previous data
+    if (JSON.stringify(updatedData) !== JSON.stringify(previousDataRef.current)) {
+      previousDataRef.current = updatedData
+      onUpdate(updatedData)
+    }
+  }, [data, onUpdate])
+
+  // Validate constraints whenever data changes
+  useEffect(() => {
     const newErrors: string[] = []
-    
-    if (!data.duration.startDate || !data.duration.endDate) {
-      newErrors.push('Please select both start and end dates')
-    }
-
-    if (data.venues.length === 0) {
-      newErrors.push('Please add at least one venue')
-    }
-
-    if (data.venues.some(venue => !venue.name.trim())) {
-      newErrors.push('All venues must have names')
-    }
-
-    if (!data.availability.some(a => a.isMatchDay)) {
-      newErrors.push('Please enable at least one match day')
-    }
-
+    // Add your validation logic here
     setErrors(newErrors)
-    return newErrors.length === 0
-  }
-
-  const handleUpdate = (newData: TournamentConstraints): void => {
-    onUpdate(newData)
-    validateConstraints()
-  }
+  }, [data])
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
+    <div className="space-y-6">
       {errors.length > 0 && (
-        <Alert variant="destructive" className="mb-6">
-          <ul className="list-disc pl-4">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
             {errors.map((error, index) => (
-              <li key={`error-${index}`}>{error}</li>
+              <div key={index}>{error}</div>
             ))}
-          </ul>
+          </AlertDescription>
         </Alert>
       )}
 

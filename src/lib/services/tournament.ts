@@ -1,6 +1,16 @@
 import { Tournament } from "@/types"
 
-type TournamentPreview = Pick<Tournament, 'id' | 'name' | 'description' | 'status' | 'format' | 'teams' | 'matches' | 'createdAt'>
+type TournamentPreview = Pick<Tournament, 
+  'id' | 
+  'name' | 
+  'description' | 
+  'status' | 
+  'format' | 
+  'teams' | 
+  'matches' | 
+  'createdAt' | 
+  'basicInfo'
+>
 
 export async function getTournament(id: string): Promise<Tournament> {
   // This is demo data - replace with actual API call later
@@ -11,48 +21,63 @@ export async function getTournament(id: string): Promise<Tournament> {
     status: "DRAFT" as const,
     format: "LEAGUE" as const,
     settings: {
-      roundRobinType: "SINGLE",
-      groupCount: 1,
-      teamsPerGroup: 4,
-      qualifiersPerGroup: 2,
-      hasThirdPlace: true,
-      hasExtraTime: true,
-      hasPenalties: true
+      league: {
+        pointsForWin: 3,
+        pointsForDraw: 1,
+        pointsForLoss: 0,
+        useHeadToHead: true,
+        useGoalDifference: true,
+        roundRobinType: "SINGLE"
+      },
+      matchDuration: {
+        regularTime: 90,
+        penalties: false
+      }
     },
     teams: [
       {
         id: "1",
         name: "Barcelona",
-        color: "#A50044",
-        stats: {
-          played: 0,
-          won: 0,
-          drawn: 0,
-          lost: 0,
-          goalsFor: 0,
-          goalsAgainst: 0,
-          goalDifference: 0,
-          points: 0
-        }
+        status: "CONFIRMED" as const,
+        primaryColor: "#A50044",
       },
       {
         id: "2",
         name: "Real Madrid",
-        color: "#FFFFFF",
-        stats: {
-          played: 0,
-          won: 0,
-          drawn: 0,
-          lost: 0,
-          goalsFor: 0,
-          goalsAgainst: 0,
-          goalDifference: 0,
-          points: 0
-        }
+        status: "CONFIRMED" as const,
+        primaryColor: "#FFFFFF",
       }
     ],
     matches: [],
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    basicInfo: {
+      name: "Demo Tournament",
+      description: "A demo tournament for testing purposes",
+      competitionLevel: "RECREATIONAL" as const
+    },
+    vision: {
+      targetTeamCount: 16,
+      priorities: {
+        venueEfficiency: true,
+        matchBalance: true,
+        restTime: true
+      },
+      preferences: {
+        preferredMatchDays: [],
+        preferredMatchTimes: [],
+        avoidBackToBack: true
+      }
+    },
+    constraints: {
+      duration: {
+        startDate: new Date().toISOString(),
+        endDate: new Date().toISOString(),
+        isSingleDay: false
+      },
+      venues: [],
+      availability: []
+    }
   }
 }
 
@@ -73,6 +98,11 @@ export async function getTournaments(): Promise<TournamentPreview[]> {
       teams: [],
       matches: [],
       createdAt: new Date().toISOString(),
+      basicInfo: {
+        name: 'Summer League 2024',
+        description: 'Annual summer football tournament featuring teams from across the region.',
+        competitionLevel: 'RECREATIONAL' as const
+      }
     },
     {
       id: '2',
@@ -83,6 +113,11 @@ export async function getTournaments(): Promise<TournamentPreview[]> {
       teams: [],
       matches: [],
       createdAt: new Date().toISOString(),
+      basicInfo: {
+        name: 'Winter Cup',
+        description: 'Knockout tournament with exciting matches and high stakes competition.',
+        competitionLevel: 'COMPETITIVE' as const
+      }
     }
   ]
 } 

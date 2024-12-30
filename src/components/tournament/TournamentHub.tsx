@@ -17,6 +17,14 @@ export function TournamentHub() {
     queryFn: getTournaments
   })
 
+  // Prefetch the create tournament page
+  const handleCreateClick = () => {
+    // Prefetch the page
+    router.prefetch('/tournaments/create')
+    // Navigate to the page
+    router.push('/tournaments/create')
+  }
+
   return (
     <div className="min-h-[calc(100vh-3.5rem)] bg-[#FBFBFD] dark:bg-black px-8 py-8">
       <div className="max-w-[1120px] mx-auto space-y-8">
@@ -30,7 +38,7 @@ export function TournamentHub() {
             </p>
           </div>
           <Button 
-            onClick={() => router.push('/tournaments/create')}
+            onClick={handleCreateClick}
             className="bg-[#0066CC] hover:bg-[#0077ED] text-white rounded-full px-8 h-12 text-base transition-all duration-200"
           >
             <PlusCircle className="mr-2 h-5 w-5" />
@@ -58,7 +66,7 @@ export function TournamentHub() {
                 Create your first tournament and start managing your competitions
               </p>
               <Button 
-                onClick={() => router.push('/tournaments/create')}
+                onClick={handleCreateClick}
                 className="bg-[#0066CC] hover:bg-[#0077ED] text-white rounded-full px-8 h-12 text-base transition-all duration-200"
               >
                 <PlusCircle className="mr-2 h-5 w-5" />
